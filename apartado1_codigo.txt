@@ -1,0 +1,38 @@
+## Comprobar calida de los fastq 
+
+## $fastqc SRR479052.chr21_1.fastq SRR479052.chr21_2.fastq SRR479054.chr21_1.fastq SRR479054.chr21_2.fastq 
+
+## analisis de estos fastq con multiqc
+
+
+## $multiqc . ## dentro de la carpeta con donde se ha utilizado el codigo de fastq 
+
+
+## indexado de la muestra 
+
+## $hisat2-build --seed 25 -p 8 Homo_sapiens.GRCh38.dna.chromosome.21.fa Homo_sapiens.GRCh38.dna.chromosome.21
+
+## Alineamiento respecto a la referencia para ambas muestras 
+
+## $ hisat2 --new-summary --summary-file test/SRR479052.hisat2.summary --rna-strandness FR --seed 25 --phred33 -p 8 -k 1 -x ./Homo_sapiens.GRCh38.dna.chromosome.21 -1 SRR479052.chr21_1.fastq -2 SRR479052.chr21_2.fastq -S sam/SRR479052.chr21.sam 
+
+
+## $ hisat2 --new-summary --summary-file test/SRR479054.hisat2.summary --rna-strandness FR --seed 25 --phred33 -p 8 -k 1 -x ./Homo_sapiens.GRCh38.dna.chromosome.21 -1 SRR479054.chr21_1.fastq -2 SRR479054.chr21_2.fastq -S sam/SRR479054.chr21.sam 
+
+
+## transformar de .sam a .bam para poder hacer un count de los read de la muestra 
+
+## $samtools view -bS sam/SRR479052.chr21.sam > SRR479052.bam
+##$samtools view -bS sam/SRR479054.chr21.sam > SRR479054.bam
+
+##$samtools sort SRR479052.bam -o SRR479052.sorted.bam
+##$samtools sort SRR479054.bam -o SRR479054.sorted.bam
+
+##$samtools index SRR479052.sorted.bam 
+##$samtools index SRR479054.sorted.bam 
+
+## cuantificación de los reads 
+
+##$htseq-count --format=bam --mode=intersection-nonempty --minaqual=10 --type=exon --idattr=gene_id --additional-attr=gene_name sam/SRR479052.sorted.bam Homo_sapiens.GRCh38.109.chr21.gtf > sam/htseq/SRR479052.htseq
+
+##$htseq-count --format=bam --mode=intersection-nonempty --minaqual=10 --type=exon --idattr=gene_id --additional-attr=gene_name sam/SRR479054.sorted.bam Homo_sapiens.GRCh38.109.chr21.gtf > sam/htseq/SRR479054.htseq
